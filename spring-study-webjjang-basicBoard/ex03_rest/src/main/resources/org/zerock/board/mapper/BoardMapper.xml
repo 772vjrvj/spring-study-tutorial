@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zerock.board.mapper.BoardMapper">
+	<!-- 반복되어 지거나 복잡한 경우 따로 선언을 하고 가져다 쓸 수 있도록 정의해 놓은 것 -->
+	<sql id="search">
+		<!-- 검색처리를 하는 부분 -->
+		<if test="word !=null and word != ''.toString">
+			where ( 1 = 0  <!-- 형식을 맞추기 위한 false   and 는 where 1=1 사용-->
+			<!-- 2글자 이상인 경우 : String 취급, 한 글자인 경우:char 취급 => toString()를 이용해서 문자열(string)로 
+				만듬 
+				"||" : 문자열 이어 붙이는 연산자 -> concat(a, concat(b,c))
+				-->
+			<if test="key == 't'.toString()">
+				<!-- concat(문자열, 문자열) : 2개만 연결, "||" : 문자열 이어 붙이는 연산자 -->
+				or title like '%' || #{word} || '%'
+			</if>
+			<if test="key == 'c'.toString()">
+				or content like '%' || #{word} || '%'
+			</if>
+			<if test="key == 'w'.toString()">
+				or writer like '%' || #{word} || '%'
+			</if>
+			<if test="key == 'tc'.toString()">
+				or title like '%' || #{word} || '%'
+				or content like '%' || #{word} || '%'
+			</if>
+			<if test="key == 'tw'.toString()">
+				or title like '%' || #{word} || '%'
+				or writer like '%' || #{word} || '%'
+			</if>
+			<if test="key == 'cw'.toString()">
+				or content like '%' || #{word} || '%'
+				or writer like '%' || #{word} || '%'
+			</if>
+			<if test="key == 'twc'">
+				or title like '%' || #{word} || '%'
+				or content like '%' || #{word} || '%'
+				or writer like '%' || #{word} || '%'
+			</if>
+			)
+		</if>
+	</sql>
+
+	<!-- 게시판 리스트 쿼리 -->
+	<!-- id="메서드 이름" -->
+	<select id="list" resultType="org.zerock.board.vo.BoardVO">
+		select rnum, no, title, writer, writeDate, hit
+		from(
+		select rownum rnum,
+		no, title, writer, writeDate, hit
+		from(
+		select no, title, writer,
+		writeDate, hit
+		from board
+		<include refid="search" />
+		order by no desc
+		)
+		)
+		where rnum between #{startRow} and #{endRow}
+	</select>
+
+	<select id="getTotalRow" resultType="java.lang.Long">
+		select count(*)
+		from board
+		<include refid="search" />
+	</select>
+
+	<!-- 게시판 글보기 - 글번호가 넘오온다. :no -->
+	<!-- id="메서드 이름" -->
+	<select id="view" resultType="org.zerock.board.vo.BoardVO">
+		select no, title, content, writer,
+		writeDate, hit
+		from board
+		where no = #{no}
+	</select>
+
+	<!-- 게시판 조회수 1증가 - 글번호가 넘어온다. -->
+	<update id="increase">
+		update board set hit = hit + 1
+		where no = #{no}
+	</update>
+
+	<!-- 게시판 글쓰기 BoardVO가 넘어온다. : vo 안에 있는 프로퍼티 이름만 쓰시면 된다. -->
+	<insert id="write">
+		insert into board(no, title, content, writer)
+		values
+		(board_seq.nextval, #{title}, #{content}, #{writer})
+	</insert>
+
+	<!-- 게시판 글수정 - BoardVO가 넘어온다. : vo안에 있는 프로퍼티 이름 -->
+	<update id="update">
+		update board
+		set title = #{title}, content =
+		#{content}, writer=#{writer}
+		where no = #{no}
+	</update>
+
+	<!-- 게시판 글삭제 - 글번호 : no -->
+	<delete id="delete">
+		delete from board
+		where no = #{no}
+
+	</delete>
+
+</mapper>

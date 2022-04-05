@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zerock.qna.mapper.QnaMapper">
+	
+	<select id="list" resultType="org.zerock.qna.vo.QnaVO">
+
+		select rnum, no, title, name, id, to_char(writeDate, 'yyyy.mm.dd') writeDate, hit, levNo
+		from(
+			select rownum rnum, no, title, name, id, writeDate, hit, levNo
+			from(
+				select q.no, q.title, m.name, q.id, q.writeDate, q.hit, q.levNo
+				from qna q, member m
+				where q.id = m.id
+				order by q.refNo desc, q.ordNo
+			)
+		)
+		where rnum between #{startRow} and #{endRow}
+	</select>
+
+	<select id="getTotalRow" resultType="java.lang.Long">
+		select count(*)
+		from qna
+	</select>
+	
+	<select id="view" resultType="org.zerock.qna.vo.QnaVO">
+		select q.no, q.title, m.name, q.id, q.content, q.writeDate, q.hit, q.levNo, q.ordNo, q.refNo
+		from qna q, member m
+		where (q.no = #{no}) and (q.id = m.id)
+	</select>
+	
+	
+	<insert id="question">
+		INSERT INTO qna(no, title, content, id, refNo, ordNo, levNo, parentNo)
+		values(qna_seq.nextval, #{title},#{content}, #{id}, qna_seq.nextval, 1, 0, qna_seq.nextval)
+	</insert>
+	
+	<insert id="answer">
+		INSERT INTO qna(no, title, content, id, refNo, ordNo, levNo, parentNo)
+		values(qna_seq.nextval, #{title},#{content}, #{id}, #{refNo}, #{ordNo}, #{levNo}, #{parentNo})
+	</insert>
+
+	<update id="ordUpdate">
+		UPDATE qna
+		SET ordNo = ordNo + 1
+		WHERE refNo = #{refNo} and ordNo >= #{ordNo}
+	</update>
+
+	<update id="increase">
+		UPDATE qna
+		SET hit = hit + 1
+		WHERE no = #{no}
+	</update>
+
+	<delete id="delete">
+		delete from qna
+		where no = #{no}
+	</delete>
+
+
+</mapper>

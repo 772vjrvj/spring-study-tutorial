@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.zerock.member.mapper.MemberMapper">
+
+	<sql id="search">
+		<!-- 검색처리를 하는 부분 -->
+		<if test="word !=null and word != ''.toString">
+			where ( 1 = 0  <!-- 형식을 맞추기 위한 false   and 는 where 1=1 사용-->
+			<!-- 2글자 이상인 경우 : String 취급, 한 글자인 경우:char 취급 => toString()를 이용해서 문자열(string)로 
+				만듬 
+				"||" : 문자열 이어 붙이는 연산자 -> concat(a, concat(b,c))
+				-->
+			<if test="key == 'all'.toString()">
+				<!-- concat(문자열, 문자열) : 2개만 연결, "||" : 문자열 이어 붙이는 연산자 -->
+				or id like '%' || #{word} || '%'
+				or name like '%' || #{word} || '%'
+				or gender like '%' || #{word} || '%'
+				or birth like '%' || #{word} || '%'
+				or tel like '%' || #{word} || '%'
+				or status like '%' || #{word} || '%'
+				or gradeNo like '%' || #{word} || '%'
+				or gradeName like '%' || #{word} || '%'
+			</if>
+			<if test="key == 'i'.toString()">
+				<!-- concat(문자열, 문자열) : 2개만 연결, "||" : 문자열 이어 붙이는 연산자 -->
+				or id like '%' || #{word} || '%'
+			</if>
+			<if test="key == 'n'.toString()">
+				or name like '%' || #{word} || '%'
+			</if>
+			<if test="key == 'g'.toString()">
+				or gender like '%' || #{word} || '%'
+			</if>
+			<if test="key == 'b'.toString()">
+				or birth like '%' || #{word} || '%'
+			</if>
+			<if test="key == 't'.toString()">
+				or tel like '%' || #{word} || '%'
+			</if>
+			<if test="key == 's'.toString()">
+				or status like '%' || #{word} || '%'
+			</if>
+			<if test="key == 'gno'">
+				or gradeNo like '%' || #{word} || '%'
+			</if>
+			<if test="key == 'gnm'">
+				or gradeName like '%' || #{word} || '%'
+			</if>
+			)
+		</if>
+	</sql>
+
+
+
+	<!-- // 리스트 -->
+	<select id="list" resultType="org.zerock.member.vo.MemberVO">
+		select rnum, id, name, gender, to_char(birth, 'yyyy.MM.dd') birth, tel, status, gradeNo, gradeName 
+		from (
+			select rownum rnum, id, name, gender, birth, tel, status, gradeNo, gradeName 
+			from (
+				select m.id, m.name, m.gender, m.birth, m.tel, m.status, m.gradeNo, g.gradeName gradeName
+				from member m, grade g
+				where m.gradeNo = g.gradeNo
+				order by id
+			)
+			<include refid="search" />
+		)
+
+		where rnum between #{startRow} and #{endRow}
+	</select>
+	
+	<!-- // 회원 정보 보기 -->
+	<select id="view" resultType="org.zerock.member.vo.MemberVO">
+		select m.id, m.name, m.gender, to_char(birth, 'yyyy.MM.dd') birth, m.tel, 
+			   m.email, to_char(m.regDate, 'yyyy.MM.dd') regDate, m.status, m.gradeNo, g.gradeName
+		from member m, grade g 
+		where (m.id = #{id}) and (m.gradeNo = g.gradeNo)
+	</select>
+		
+	
+	<!-- //전체 데이터 갯수 -->
+	<select id="getTotalRow" resultType="java.lang.Long">
+		select count(*)
+		from (
+			select rownum rnum, id, name, gender, birth, tel, status, gradeNo, gradeName 
+			from (
+				select m.id, m.name, m.gender, m.birth, m.tel, m.status, m.gradeNo, g.gradeName
+				from member m, grade g
+				where m.gradeNo = g.gradeNo
+				order by id
+			)
+		)
+		<include refid="search" />
+	</select>
+	
+	<!-- // 보기 -->
+	<!-- // 회원가입 -->
+	<insert id="write">
+		insert into member(id, pw, name, gender, birth, tel, email, photo) 
+		values (#{id}, #{pw}, #{name}, #{gender}, #{birth}, #{tel}, #{email}, #{photo})
+	</insert>
+	
+	<select id="idCheck" resultType="String">
+		select id from member where id = #{id}
+	</select>	
+	
+	
+	<!-- // 등록 -->
+	
+	
+	<!-- // 등급 수정 -->
+	<update id="gradeModify">
+		update member set gradeNo = #{gradeNo}
+		where id = #{id}
+	</update>
+	
+
+	
+	<!-- // 탈퇴 -->
+	<!-- // 로그인 처리 -->
+	<select id="login" resultType="org.zerock.member.vo.LoginVO">
+		select m.id, m.name, m.gradeNo, g.gradeName, m.photo
+		from member m, grade g
+		where (id = #{id} and pw = #{pw}) and (m.gradeNo = g.gradeNo)
+	</select>
+
+</mapper>
