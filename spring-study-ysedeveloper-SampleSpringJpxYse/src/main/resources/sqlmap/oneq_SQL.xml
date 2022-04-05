@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE  mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="oneq">
+<sql id="ref">
+WITH oneq AS 
+(
+	SELECT 
+		a.id,
+		a.parentId,
+		b.SiCode, 
+		b.GuCode, 
+		b.DongCode, 
+		b.SiName, 
+		b.GuName, 
+		b.DongName, 
+		IF( a.parentId IS NULL, a.StoreName, '') AS StoreName,
+		IF( a.parentId IS NULL, a.StoreSeq, '') AS StoreSeq,
+		IF( a.parentId IS NULL, '', a.StoreName) AS SubStoreName,
+		IF( a.parentId IS NULL, '', a.StoreSeq) AS SubStoreSeq,
+		b.SiSeq,
+		b.GuSeq, 
+		b.DongSeq,
+		a.Customer,
+		a.Price,
+		a.RegDate,
+		a.RegID,
+		a.FinDate,
+		a.FinID
+	FROM oneqcustomer a JOIN oneqsite b 
+	ON a.SiCode = b.SiCode
+	AND a.GuCode = b.GuCode
+	AND a.DongCode = b.DongCode
+	ORDER BY b.SiSeq ,b.GuSeq, b.DongSeq ASC
+)
+</sql>
+
+<select id="onsearch" parameterType="sample.springjqx.yse.jqxGridDto.Oneqcustomer" resultType="sample.springjqx.yse.jqxGridDto.Oneqcustomer">
+	<include refid="ref"/>
+	<!-- oneq.onsearch -->
+SELECT 
+	a.id,
+	a.parentId,
+	a.SiCode, 
+	a.GuCode, 
+	a.DongCode, 
+	a.SiName, 
+	a.GuName, 
+	a.DongName, 
+	IF( a.parentId IS NULL, a.StoreName,
+		(
+			SELECT 
+			b.StoreName 
+			FROM oneq b
+			WHERE b.id = a.parentId
+		)
+	) AS StoreName,
+	IF( a.parentId IS NULL, a.StoreSeq,
+		(
+			SELECT 
+			b.StoreSeq 
+			FROM oneq b
+			WHERE b.id = a.parentId
+		)
+	) AS StoreSeq,
+	a.SubStoreName,
+	a.SubStoreSeq,
+	a.Customer,
+	a.Price,
+	a.RegID,
+	DATE_FORMAT(a.RegDate, '%Y.%m.%d') AS RegDate,
+	a.FinID,
+	DATE_FORMAT(a.FinDate, '%Y.%m.%d') AS FinDate
+FROM oneq a
+ORDER BY SiSeq ,GuSeq, DongSeq, StoreSeq, SubStoreSeq ASC
+LIMIT #{startPage}, #{rowsCount}; 
+</select>	
+
+<select id="totalCnt" parameterType="sample.springjqx.yse.jqxGridDto.Oneqcustomer" resultType="int">
+	<include refid="ref"/>
+	<!-- oneq.totalCnt -->
+	SELECT 
+	COUNT(*)
+	FROM oneq
+</select>	
+
+<select id="siCodeList" parameterType="hashMap" resultType="hashMap"> 
+	SELECT 
+		DISTINCT SICODE AS value
+	   ,SINAME AS label
+	FROM 
+	ONEQSITE
+	WHERE 1=1 
+</select>
+<select id="guCodeList" parameterType="hashMap" resultType="hashMap">
+	SELECT 
+ 		DISTINCT GUCODE AS value
+	   ,GUNAME AS label
+	FROM 
+	ONEQSITE
+	WHERE 1=1 
+	<if test="siCode != null and siCode != ''"> 
+		AND SICODE = #{siCode} 
+	</if> 
+</select>
+<select id="dongCodeList" parameterType="hashMap" resultType="hashMap">
+	SELECT
+ 		DISTINCT DONGCODE AS value
+	   ,DONGNAME AS label 
+	FROM 
+	ONEQSITE
+	WHERE 1=1 
+	<if test="siCode != null and siCode != ''"> 
+		AND SICODE = #{siCode} 
+	</if> 
+	<if test="guCode != null and guCode != ''"> 
+		AND GUCODE = #{guCode}
+	</if> 
+</select>
+</mapper>
