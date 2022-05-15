@@ -12,8 +12,8 @@
 		<property name="driverClassName"
 			value="net.sf.log4jdbc.sql.jdbcapi.DriverSpy" />
 		<property name="url"
-			value="jdbc:log4jdbc:mysql://localhost:3307/yse_spring_mvc?serverTimezone=UTC&amp;useSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF-8" />
-		<property name="username" value="yse_spring_mvc_user" />
+			value="jdbc:log4jdbc:mysql://localhost:3307/test?serverTimezone=UTC&amp;useSSL=false&amp;useUnicode=true&amp;characterEncoding=UTF-8" />
+		<property name="username" value="root" />
 		<property name="password" value="1234" />
 	</bean>
 	
