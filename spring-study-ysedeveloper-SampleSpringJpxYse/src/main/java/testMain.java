@@ -33,7 +33,27 @@ public class testMain {
 //		Color color = Color.BLUE;
 //		
 //		System.out.println("color : "+ color);
-
+		
+		long l = (10L-1)/10L + 1;
+		System.out.println("l:"+l);
+		
+		
+		long ll = (17-1)/5 + 1;
+		System.out.println("ll : " + ll);
+		System.out.println("ll : " + (17-1)/5 + 1);
+		
+		
+		
+		long startPage 
+		= (1 - 1) / 10 * 10;
+		System.out.println("startPage : " + startPage);
+		
+		int dd = (int)Math.ceil((double)12/(double)5);
+		
+		System.out.println("dd : " + dd);
+		
+		
+		
     	
 		
 	}
