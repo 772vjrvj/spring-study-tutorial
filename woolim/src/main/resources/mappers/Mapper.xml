@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 다른 mapper와 중복되지 않도록 네임스페이스 기재 -->
+<mapper namespace="com.woolim">
+	<select id="projectsList" resultType="com.woolim.dto.projects">
+		SELECT 
+		
+		No, ProjectContract, ProjectCode, SingleProduct, ProjectPlace, 
+		ProjectName, ProjectStartDate, ProjectEndDate, ProjectContents, ControlMoney, 
+		ElectricMoney, ControlPerson, ElectricPerson, NotePerson, CustomerCompany, 
+		CustomerPerson, Money1Percent, Money1Amount, Money1Condition, 
+		Money1Remark, Money2Percent, Money2Amount, Money2Condition, 
+		Money2Remark, Money3Percent, Money3Amount, Money3Condition, 
+		Money3Remark, ProjectStatus
+		
+		 FROM PROJECTS
+	</select>
+	<select id="projectGet" parameterType="Integer" resultType="com.woolim.dto.projects">
+		SELECT 
+		No, ProjectContract, ProjectCode, SingleProduct, ProjectPlace, 
+		ProjectName, ProjectStartDate, ProjectEndDate, ProjectContents, ControlMoney, 
+		ElectricMoney, ControlPerson, ElectricPerson, NotePerson, CustomerCompany, 
+		CustomerPerson, Money1Percent, Money1Amount, Money1Condition, 
+		Money1Remark, Money2Percent, Money2Amount, Money2Condition, 
+		Money2Remark, Money3Percent, Money3Amount, Money3Condition, 
+		Money3Remark, ProjectStatus
+		 FROM PROJECTS
+		WHERE NO=#{no}
+	</select> 	
+	<insert id="projectsInsert" parameterType="com.woolim.dto.projects"> 
+		INSERT INTO Projects (ProjectContract, ProjectCode, SingleProduct, ProjectPlace, 
+		ProjectName, ProjectStartDate, ProjectEndDate, ProjectContents, ControlMoney, 
+		ElectricMoney, ControlPerson, ElectricPerson, NotePerson, CustomerCompany, 
+		CustomerPerson, Money1Percent, Money1Amount, Money1Condition, 
+		Money1Remark, Money2Percent, Money2Amount, Money2Condition, 
+		Money2Remark, Money3Percent, Money3Amount, Money3Condition, 
+		Money3Remark, ProjectStatus) 
+		VALUES (#{projectcontract}, #{projectcode}, #{singleproduct}, #{projectplace}, 
+		#{projectname}, #{projectstartdate}, #{projectenddate}, #{projectcontents}, #{controlmoney}, 
+		#{electricmoney}, #{controlperson}, #{electricperson}, #{noteperson}, #{customercompany}, 
+		#{customerperson}, #{money1Percent}, #{money1Amount}, #{money1Condition}, #{money1Remark}, 
+		#{money2Percent}, #{money2Amount}, #{money2Condition}, #{money2Remark}, #{money3Percent}, 
+		#{money3Amount}, #{money3Condition}, #{money3Remark}, #{projectstatus});		
+	</insert>	
+	<insert id="codesInsert" parameterType="CODES"> 
+		INSERT INTO CODES (CODE, UPCODE, CodeOrder) VALUES ( #{code},#{upcode}, #{codeorder});
+	</insert>
+
+	<insert id="codesInsertList" parameterType="java.util.List"> 
+		INSERT INTO CODES (CODE, UPCODE, CODEORDER) VALUES 
+	    <foreach collection="list" item="item" separator=" , " >
+	        (#{item.code}, #{item.upcode}, #{item.codeorder})
+	    </foreach>		
+	</insert>	
+	
+	
+	<update id="projectsUpdate" parameterType="com.woolim.dto.projects">
+		UPDATE Projects SET 
+		ProjectContract = #{projectcontract}, ProjectCode=#{projectcode}, SingleProduct=#{singleproduct}, ProjectPlace=#{projectplace}, 
+		ProjectName=#{projectname}, ProjectStartDate=#{projectstartdate}, ProjectEndDate=#{projectenddate}, ProjectContents=#{projectcontents}, ControlMoney=#{controlmoney}, 
+		ElectricMoney=#{electricmoney}, ControlPerson=#{controlperson}, ElectricPerson=#{electricperson}, NotePerson=#{noteperson}, CustomerCompany=#{customercompany}, 
+		CustomerPerson=#{customerperson}, Money1Percent=#{money1Percent}, Money1Amount=#{money1Amount}, Money1Condition=#{money1Condition}, 
+		Money1Remark=#{money1Remark}, Money2Percent=#{money2Percent}, Money2Amount=#{money2Amount}, Money2Condition=#{money2Condition}, 
+		Money2Remark=#{money2Remark}, Money3Percent=#{money3Percent}, Money3Amount=#{money3Amount}, Money3Condition=#{money3Condition}, 
+		Money3Remark=#{money3Remark}, ProjectStatus=#{projectstatus}
+		WHERE NO=#{no}
+    </update>	
+	<delete id="projectsDelete" parameterType="Integer">
+		DELETE FROM PROJECTS
+		WHERE NO=#{no}
+	</delete>	
+	<select id="productsList" resultType="com.woolim.dto.projects">
+		SELECT * FROM PRODUCTS
+	</select>	
+
+
+	<select id="projectsListCriteriaCount" resultType="Integer" parameterType="Map" >
+		SELECT COUNT(*)
+		FROM PROJECTS 
+		<where>
+		 	<if test='select1 !=null and  select1.equals("PROJECTCODE") and  input !=null  and input != ""'>
+        		 PROJECTCODE LIKE CONCAT('%',#{input},'%')	
+        	</if>
+		 	<if test='select1 !=null and  select1.equals("SINGLEPRODUCT")'>
+        		 AND SINGLEPRODUCT = "Y"
+        	</if>
+		 	<if test='select1 !=null and  select1.equals("PROJECTCONTRACT")'>
+        		 AND  PROJECTCONTRACT = 'Y'
+        	</if>
+		 	<if test='select1 !=null and  select1.equals("PROJECTNAME") and  input !=null  and input != ""'>
+        		AND  PROJECTNAME like CONCAT('%',#{input},'%')	
+        	</if>
+		 	<if test='select1 !=null and  select1.equals("PROJECTSTATUS") and  input !=null  and input != ""'>
+        		AND  PROJECTSTATUS like CONCAT('%',#{input},'%')	
+        	</if>
+		 	<if test='select1 !=null and  select1.equals("CUSTOMER") and  input !=null  and input != ""'>
+        		AND  CUSTOMERCOMPANY like CONCAT('%',#{input},'%')	
+        	</if>  
+		 	<if test='select1 !=null and  select1.equals("CLERK") and  input !=null  and input != ""'>
+        		AND  CONTROLPERSON like CONCAT('%',#{input},'%') 
+        	</if>         	      	
+		 	<if test='select2 !=null  and select2 !="0"' >
+				AND DATE_FORMAT(ProjectStartDate,'%Y') = #{select2} 
+			</if>	
+			<if test='select3 !=null  and select3 !="0"'>
+				AND DATE_FORMAT(ProjectStartDate,'%m') = #{select3} 
+        	</if>
+		 </where>
+	</select>
+
+
+	<select id="projectsListCriteria" resultType="com.woolim.dto.projects" parameterType="Map" >
+		SELECT 
+		No, ProjectContract, ProjectCode, SingleProduct, ProjectPlace, 
+		ProjectName, ProjectStartDate, ProjectEndDate, ProjectContents, ControlMoney, 
+		ElectricMoney, ControlPerson, ElectricPerson, NotePerson, CustomerCompany, 
+		CustomerPerson, Money1Percent, Money1Amount, Money1Condition, 
+		Money1Remark, Money2Percent, Money2Amount, Money2Condition, 
+		Money2Remark, Money3Percent, Money3Amount, Money3Condition, 
+		Money3Remark, ProjectStatus
+		FROM Projects 
+		<where>
+		 	<if test='select1 !=null and  select1.equals("PROJECTCODE") and  input !=null  and input != ""'>
+        		 PROJECTCODE LIKE CONCAT('%',#{input},'%')	
+        	</if>
+		 	<if test='select1 !=null and  select1.equals("SINGLEPRODUCT")'>
+        		 AND SINGLEPRODUCT = "Y"
+        	</if>
+		 	<if test='select1 !=null and  select1.equals("PROJECTCONTRACT")'>
+        		 AND  PROJECTCONTRACT = 'Y'
+        	</if>
+		 	<if test='select1 !=null and  select1.equals("PROJECTNAME") and  input !=null  and input != ""'>
+        		AND  PROJECTNAME like CONCAT('%',#{input},'%')	
+        	</if>
+		 	<if test='select1 !=null and  select1.equals("PROJECTSTATUS") and  input !=null  and input != ""'>
+        		AND  PROJECTSTATUS like CONCAT('%',#{input},'%')	
+        	</if>
+		 	<if test='select1 !=null and  select1.equals("CUSTOMER") and  input !=null  and input != ""'>
+        		AND  CUSTOMERCOMPANY like CONCAT('%',#{input},'%')	
+        	</if>  
+		 	<if test='select1 !=null and  select1.equals("CLERK") and  input !=null  and input != ""'>
+        		AND  CONTROLPERSON like CONCAT('%',#{input},'%') 
+        	</if>         	      	
+		 	<if test='select2 !=null  and select2 !="0"' >
+				AND DATE_FORMAT(ProjectStartDate,'%Y') = #{select2} 
+			</if>	
+			<if test='select3 !=null  and select3 !="0"'>
+				AND DATE_FORMAT(ProjectStartDate,'%m') = #{select3} 
+        	</if>
+		 </where>
+		 ORDER BY NO DESC
+		 LIMIT #{pageStart},#{perPageNum}
+	</select>
+
+	<select id="workLogsListCriteriaCount" resultType="Integer" parameterType="Map" >
+		SELECT COUNT(*)
+		FROM workLog 
+		<where>      
+			<if test='input !=null  and input != ""'>
+        		 USERID LIKE CONCAT('%',#{input},'%')	
+        	</if>	      	
+		 	<if test='select2 !=null  and select2 !="0"' >
+				AND DATE_FORMAT(WorkLogDate,'%Y') = #{select2} 
+			</if>	
+			<if test='select3 !=null  and select3 !="0"'>
+				AND DATE_FORMAT(WorkLogDate,'%m') = #{select3} 
+        	</if>
+		 </where>
+	</select>
+
+
+	<select id="workLogsListCriteria" resultType="com.woolim.dto.workLog" parameterType="Map" >
+		SELECT NO, 
+		DATE_FORMAT(WORKLOGDATE,'%Y-%m-%d') WORKLOGDATE,
+		USERID, WORKTYPE, WORKSTARTTIME, WORKENDTIME, WORKPROJECTYEAR
+		PROJECTCONTRACT, PROJECTCODE, PROJECTPROCESS, WORKCODE1, WORKCODE2, WORKPROCESS,
+		WORKCONTENTS, WORKPLACE, CONSIDERATION, CONFIRM3, CONFIRM3OK, WORKTIME, SUBSEQ,
+		DATE_FORMAT(THISDATE,'%Y-%m-%d') THISDATE
+		FROM WORKLOG
+		<where>      
+			<if test='input !=null  and input != ""'>
+        		 USERID LIKE CONCAT('%',#{input},'%')	
+        	</if>	      	
+		 	<if test='select2 !=null  and select2 !="0"' >
+				AND DATE_FORMAT(WorkLogDate,'%Y') = #{select2} 
+			</if>	
+			<if test='select3 !=null  and select3 !="0"'>
+				AND DATE_FORMAT(WorkLogDate,'%m') = #{select3} 
+        	</if>
+		 </where>
+		 ORDER BY NO DESC
+		 limit #{pageStart},#{perPageNum}
+	</select>
+
+	<select id="businessLogGet" parameterType="Map" resultType="com.woolim.dto.workLog">
+		SELECT NO, 
+		DATE_FORMAT(WORKLOGDATE,'%Y-%m-%d') WORKLOGDATE,
+		USERID, WORKTYPE, WORKSTARTTIME, WORKENDTIME, WORKPROJECTYEAR
+		PROJECTCONTRACT, PROJECTCODE, PROJECTPROCESS, WORKCODE1, WORKCODE2, WORKPROCESS,
+		WORKCONTENTS, WORKPLACE, CONSIDERATION, CONFIRM3, CONFIRM3OK, WORKTIME, SUBSEQ,
+		DATE_FORMAT(THISDATE,'%Y-%m-%d') THISDATE
+		 FROM WORKLOG
+		 WHERE DATE_FORMAT(THISDATE,'%Y-%m-%d') = #{date}
+			 	<if test="id !=null" >
+					AND USERID = #{id} 
+				</if>	
+				ORDER BY SUBSEQ ASC
+	</select> 
+	
+	<update id="businessLogApprovalUpdate" parameterType="Map">
+	UPDATE WORKLOG SET Confirm3OK=#{approval} WHERE  USERID=#{id} AND DATE_FORMAT(THISDATE,'%Y-%m-%d') = #{date} AND SUBSEQ='0';
+	</update>
+	
+	<select id="businessLogApprovalList" parameterType="String" resultType="com.woolim.dto.workLog">
+		SELECT NO, 
+		DATE_FORMAT(WORKLOGDATE,'%m-%d') WORKLOGDATE,
+		USERID, CONFIRM3OK, SUBSEQ,
+		DATE_FORMAT(THISDATE,'%Y-%m-%d') THISDATE
+		FROM WORKLOG	
+		WHERE DATE_FORMAT(THISDATE,'%Y-%m-%d') = #{date}  AND SUBSEQ='0';
+		
+	</select>
+
+	<select id="businessLogDetailList" parameterType="Map" resultType="com.woolim.dto.workLog">
+		SELECT NO, 
+		DATE_FORMAT(WORKLOGDATE,'%Y-%m-%d') WORKLOGDATE,
+		USERID, WORKTYPE, WORKSTARTTIME, WORKENDTIME, WORKPROJECTYEAR
+		PROJECTCONTRACT, PROJECTCODE, PROJECTPROCESS, WORKCODE1, WORKCODE2, WORKPROCESS,
+		WORKCONTENTS, WORKPLACE, CONSIDERATION, CONFIRM3, CONFIRM3OK, WORKTIME, SUBSEQ,
+		DATE_FORMAT(THISDATE,'%Y-%m-%d') THISDATE
+		FROM WORKLOG	
+		WHERE DATE_FORMAT(THISDATE,'%Y-%m-%d') = #{date}  AND USERID=#{id}
+		ORDER BY SUBSEQ ASC
+	</select>
+
+	
+	
+
+</mapper>
